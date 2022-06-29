@@ -19,14 +19,14 @@ public class LibreUser {
     }
 
     public UUID getUuid() {
-        return uuid;
+        return this.uuid;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public int getSectorID() {
-        return sectorID;
+        return this.sectorID;
     }
 }

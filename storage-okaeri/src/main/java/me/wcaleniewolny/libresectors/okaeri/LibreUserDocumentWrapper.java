@@ -5,42 +5,40 @@ import java.util.UUID;
 import me.wcaleniewolny.libresectors.api.user.LibreUser;
 
 public class LibreUserDocumentWrapper extends Document {
-    private UUID uuid;
     private String name;
 
-    private byte[] serializedInventory = new byte[0];
+    private String serializedInventory;
 
     private LibreUserDocumentWrapper() {
 
     }
 
-    public LibreUserDocumentWrapper(UUID uuid, String name) {
-        this.uuid = uuid;
+    public LibreUserDocumentWrapper(String name) {
         this.name = name;
     }
 
     public LibreUser convertToUser() {
-        return LibreUser.create(this.uuid, this.name);
+        return LibreUser.create(this.getUUID(), this.name);
     }
 
     public UUID getUUID() {
-        return this.uuid;
+        return this.getPath().toUUID();
     }
 
     public String getName() {
         return this.name;
     }
 
-    public byte[] getSerializedInventory() {
+    public String getSerializedInventory() {
         return this.serializedInventory;
     }
 
-    public void setSerializedInventory(byte[] serializedInventory) {
+    public void setSerializedInventory(String serializedInventory) {
         this.serializedInventory = serializedInventory;
     }
 
     public static LibreUserDocumentWrapper fromUser(LibreUser user) {
-        return new LibreUserDocumentWrapper(user.getUuid(), user.getName());
+        return new LibreUserDocumentWrapper(user.getName());
     }
 
 }

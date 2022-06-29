@@ -25,7 +25,7 @@ allprojects {
         prefix = "me.wcaleniewolny.dependency" // Default value is "shadow"
     }
 
-    tasks.shadowJar.get().dependsOn(tasks.getByName("relocateShadowJar"))
+    //tasks.shadowJar.get().dependsOn(tasks.getByName("relocateShadowJar"))
 }
 
 tasks.getByName<Test>("test") {

@@ -8,6 +8,7 @@ import eu.okaeri.persistence.PersistencePath;
 import eu.okaeri.persistence.document.DocumentPersistence;
 import eu.okaeri.persistence.mongo.MongoPersistence;
 import eu.okaeri.persistence.repository.RepositoryDeclaration;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +36,9 @@ public class OkaeriStorageManager implements StorageManager {
         PersistencePath basePath = PersistencePath.of(this.configuration.getPrefix());
 
         MongoClientURI mongoUri = new MongoClientURI(this.configuration.getDatabaseUri());
+
+        System.out.println(this.configuration.getDatabaseUri());
+
         MongoClient mongoClient = new MongoClient(mongoUri);
 
         if (mongoUri.getDatabase() == null) {
@@ -50,7 +54,7 @@ public class OkaeriStorageManager implements StorageManager {
     @Override
     public Optional<LibreUser> loadUser(UUID uuid) {
         Optional<LibreUserDocumentWrapper> wrapper = this.repository.findByPath(uuid);
-        wrapper.ifPresent(it -> this.uuidToSerializedInventoryMap.put(it.getUUID(), it.getSerializedInventory()));
+        wrapper.ifPresent(it -> this.uuidToSerializedInventoryMap.put(it.getUUID(), Base64.getDecoder().decode(it.getSerializedInventory())));
         return wrapper.map(LibreUserDocumentWrapper::convertToUser);
     }
 
@@ -67,7 +71,7 @@ public class OkaeriStorageManager implements StorageManager {
     @Override
     public void saveInventoryData(LibreUser user, byte[] data) {
         LibreUserDocumentWrapper wrapper = LibreUserDocumentWrapper.fromUser(user);
-        wrapper.setSerializedInventory(data);
+        wrapper.setSerializedInventory(Base64.getEncoder().encodeToString(data));
         this.repository.save(wrapper);
     }
 }
