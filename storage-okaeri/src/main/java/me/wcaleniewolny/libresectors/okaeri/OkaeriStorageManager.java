@@ -73,7 +73,9 @@ public class OkaeriStorageManager implements StorageManager {
 
     @Override
     public byte[] getInventoryData(LibreUser user) {
-        return this.uuidToSerializedInventoryMap.get(user.getUuid());
+        byte[] toReturn = this.uuidToSerializedInventoryMap.get(user.getUuid());
+        this.uuidToSerializedInventoryMap.remove(user.getUuid()); //prevent duping
+        return toReturn;
     }
 
     @Override
