@@ -13,7 +13,7 @@ public class StorageFactory {
         this.libreConfiguration = libreConfiguration;
     }
 
-    StorageManager getManager() {
+    public StorageManager getManager() {
         if (this.manager == null) {
             this.manager = new OkaeriStorageManager(this.libreConfiguration);
         }

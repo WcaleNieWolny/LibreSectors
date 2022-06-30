@@ -56,7 +56,11 @@ public class OkaeriStorageManager implements StorageManager {
     public Optional<LibreUser> loadUser(UUID uuid) {
         Optional<LibreUserDocumentWrapper> wrapper = this.repository.findByPath(uuid);
         wrapper.ifPresent(it -> {
-            this.uuidToSerializedInventoryMap.put(it.getUUID(), it.getSerializedInventory().map(map -> Base64.getDecoder().decode(map)).orElseGet(() -> new byte[0]));
+            if (it.getSerializedInventory() != null && !it.getSerializedInventory().isEmpty()) {
+                this.uuidToSerializedInventoryMap.put(it.getUUID(), Base64.getDecoder().decode(it.getSerializedInventory()));
+                return;
+            }
+            this.uuidToSerializedInventoryMap.put(it.getUUID(), new byte[0]);
         });
 
         return wrapper.map(LibreUserDocumentWrapper::convertToUser);

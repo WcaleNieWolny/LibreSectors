@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import me.wcaleniewolny.libresectors.api.config.LibreConfiguration;
 import me.wcaleniewolny.libresectors.api.user.LibreUser;
+import me.wcaleniewolny.libresectors.spigot.inventory.InventoryManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,30 +41,6 @@ public class Main extends JavaPlugin implements Listener {
         this.storageFactory = new StorageFactory(this.config);
         this.storageFactory.getManager().setupDatabase();
 
-        Bukkit.getPluginManager().registerEvents(this, this);
-    }
-
-    @EventHandler()
-    void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        String name = player.getName();
-
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-
-            Optional<LibreUser> user = this.storageFactory.getManager().loadUser(uuid);
-            if (!user.isPresent()) {
-                Bukkit.getLogger().info(String.format("[LibreSectors] %s is not present! Creating in database", player.name()));
-                this.storageFactory.getManager().saveUser(LibreUser.create(uuid, name));
-            }
-        });
-    }
-
-    @EventHandler()
-    void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            this.storageFactory.getManager().saveUser(LibreUser.create(player.getUniqueId(), player.getName()));
-        });
+        Bukkit.getPluginManager().registerEvents(new InventoryManager(this.storageFactory, this), this);
     }
 }

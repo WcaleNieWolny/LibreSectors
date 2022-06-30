@@ -8,7 +8,7 @@ import me.wcaleniewolny.libresectors.api.user.LibreUser;
 public class LibreUserDocumentWrapper extends Document {
     private String name = ""; //Make sure that null string is not in the database - can cause problems with base64 decoding
 
-    private Optional<String> serializedInventory = Optional.empty();
+    private String serializedInventory = "";
 
     private LibreUserDocumentWrapper() {
 
@@ -30,12 +30,12 @@ public class LibreUserDocumentWrapper extends Document {
         return this.name;
     }
 
-    public Optional<String> getSerializedInventory() {
+    public String getSerializedInventory() {
         return this.serializedInventory;
     }
 
     public void setSerializedInventory(String serializedInventory) {
-        this.serializedInventory = Optional.of(serializedInventory);
+        this.serializedInventory = serializedInventory;
     }
 
     public LibreUserDocumentWrapper fromUser(LibreUser user) {
