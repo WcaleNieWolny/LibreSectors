@@ -4,6 +4,7 @@ import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
 import java.io.File;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import me.wcaleniewolny.libresectors.api.config.LibreConfiguration;
 import me.wcaleniewolny.libresectors.api.user.LibreUser;
@@ -45,16 +46,24 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler()
     void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Optional<LibreUser> user = this.storageFactory.getManager().loadUser(player.getUniqueId());
-        if (!user.isPresent()) {
-            Bukkit.getLogger().info(String.format("[LibreSectors] %s is not present! Creating in database", player.name()));
-            this.storageFactory.getManager().saveUser(LibreUser.create(player.getUniqueId(), player.getName()));
-        }
+        UUID uuid = player.getUniqueId();
+        String name = player.getName();
+
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+
+            Optional<LibreUser> user = this.storageFactory.getManager().loadUser(uuid);
+            if (!user.isPresent()) {
+                Bukkit.getLogger().info(String.format("[LibreSectors] %s is not present! Creating in database", player.name()));
+                this.storageFactory.getManager().saveUser(LibreUser.create(uuid, name));
+            }
+        });
     }
 
     @EventHandler()
     void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        this.storageFactory.getManager().saveUser(LibreUser.create(player.getUniqueId(), player.getName()));
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            this.storageFactory.getManager().saveUser(LibreUser.create(player.getUniqueId(), player.getName()));
+        });
     }
 }

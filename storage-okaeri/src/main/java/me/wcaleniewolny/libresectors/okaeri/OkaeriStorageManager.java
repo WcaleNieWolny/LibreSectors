@@ -48,19 +48,23 @@ public class OkaeriStorageManager implements StorageManager {
         this.documentPersistence = new DocumentPersistence(new MongoPersistence(basePath, mongoClient, mongoUri.getDatabase()), JsonSimpleConfigurer::new);
         this.collection = PersistenceCollection.of(LibreUserRepository.class);
 
+        this.documentPersistence.registerCollection(this.collection);
         this.repository = RepositoryDeclaration.of(LibreUserRepository.class).newProxy(this.documentPersistence, this.collection, this.getClass().getClassLoader());
     }
 
     @Override
     public Optional<LibreUser> loadUser(UUID uuid) {
         Optional<LibreUserDocumentWrapper> wrapper = this.repository.findByPath(uuid);
-        wrapper.ifPresent(it -> this.uuidToSerializedInventoryMap.put(it.getUUID(), Base64.getDecoder().decode(it.getSerializedInventory())));
+        wrapper.ifPresent(it -> {
+            this.uuidToSerializedInventoryMap.put(it.getUUID(), it.getSerializedInventory().map(map -> Base64.getDecoder().decode(map)).orElseGet(() -> new byte[0]));
+        });
+
         return wrapper.map(LibreUserDocumentWrapper::convertToUser);
     }
 
     @Override
     public void saveUser(LibreUser user) {
-        this.repository.save(LibreUserDocumentWrapper.fromUser(user));
+        this.repository.save(this.repository.findOrCreateByPath(user.getUuid()).fromUser(user));
     }
 
     @Override
@@ -70,7 +74,7 @@ public class OkaeriStorageManager implements StorageManager {
 
     @Override
     public void saveInventoryData(LibreUser user, byte[] data) {
-        LibreUserDocumentWrapper wrapper = LibreUserDocumentWrapper.fromUser(user);
+        LibreUserDocumentWrapper wrapper = this.repository.findOrCreateByPath(user.getUuid()).fromUser(user);
         wrapper.setSerializedInventory(Base64.getEncoder().encodeToString(data));
         this.repository.save(wrapper);
     }

@@ -1,13 +1,14 @@
 package me.wcaleniewolny.libresectors.okaeri;
 
 import eu.okaeri.persistence.document.Document;
+import java.util.Optional;
 import java.util.UUID;
 import me.wcaleniewolny.libresectors.api.user.LibreUser;
 
 public class LibreUserDocumentWrapper extends Document {
-    private String name;
+    private String name = ""; //Make sure that null string is not in the database - can cause problems with base64 decoding
 
-    private String serializedInventory;
+    private Optional<String> serializedInventory = Optional.empty();
 
     private LibreUserDocumentWrapper() {
 
@@ -29,16 +30,17 @@ public class LibreUserDocumentWrapper extends Document {
         return this.name;
     }
 
-    public String getSerializedInventory() {
+    public Optional<String> getSerializedInventory() {
         return this.serializedInventory;
     }
 
     public void setSerializedInventory(String serializedInventory) {
-        this.serializedInventory = serializedInventory;
+        this.serializedInventory = Optional.of(serializedInventory);
     }
 
-    public static LibreUserDocumentWrapper fromUser(LibreUser user) {
-        return new LibreUserDocumentWrapper(user.getName());
+    public LibreUserDocumentWrapper fromUser(LibreUser user) {
+        this.name = user.getName();
+        return this;
     }
 
 }
