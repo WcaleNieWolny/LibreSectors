@@ -15,4 +15,6 @@ public interface StorageManager {
     byte[] getInventoryData(LibreUser user);
 
     void saveInventoryData(LibreUser user, byte[] data);
+
+    boolean databaseAvailable();
 }

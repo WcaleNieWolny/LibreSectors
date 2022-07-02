@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @DocumentCollection(path = "user", keyLength = 36, indexes = {
-        @DocumentIndex(path = "uuid", maxLength = 24),
+        @DocumentIndex(path = "uuid", maxLength = 36),
         @DocumentIndex(path = "name", maxLength = 24),
 })
 public interface LibreUserRepository extends DocumentRepository<UUID, LibreUserDocumentWrapper> {

@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -26,10 +27,19 @@ public class InventoryManager implements Listener {
     }
 
     @EventHandler()
+    void onPrePlayerJoin(AsyncPlayerPreLoginEvent event) {
+        if (!this.storageFactory.getManager().databaseAvailable()) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Database is no available!");
+        }
+    }
+
+    @EventHandler()
     void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         String name = player.getName();
+
+        Bukkit.getLogger().info(String.format("Database: %b", this.storageFactory.getManager().databaseAvailable()));
 
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
 
