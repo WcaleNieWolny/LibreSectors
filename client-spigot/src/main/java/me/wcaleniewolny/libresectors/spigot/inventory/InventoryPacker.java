@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -39,7 +40,7 @@ public class InventoryPacker {
         ArrayList<ItemStack> items = new ArrayList<>(41);
         if (packed.length == 0) {
             for (int i = 0; i < 41; i++) {
-                items.set(i, null);
+                items.add(null);
             }
 
             return items;

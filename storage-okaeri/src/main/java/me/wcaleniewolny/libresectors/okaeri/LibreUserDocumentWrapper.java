@@ -40,6 +40,7 @@ public class LibreUserDocumentWrapper extends Document {
 
     public LibreUserDocumentWrapper fromUser(LibreUser user) {
         this.name = user.getName();
+        this.serializedInventory = user.getSerializedInventory();
         return this;
     }
 

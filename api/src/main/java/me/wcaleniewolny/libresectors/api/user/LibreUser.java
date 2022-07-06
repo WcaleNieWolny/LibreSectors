@@ -7,6 +7,7 @@ public class LibreUser {
     private final UUID uuid;
     private final String name;
     private int sectorID = 0;
+    private String serializedInventory = "";
 
     private LibreUser(UUID uuid, String name, int sectorID) {
         this.uuid = uuid;
@@ -28,5 +29,13 @@ public class LibreUser {
 
     public int getSectorID() {
         return this.sectorID;
+    }
+
+    public String getSerializedInventory() {
+        return this.serializedInventory;
+    }
+
+    public void setSerializedInventory(String serializedInventory) {
+        this.serializedInventory = serializedInventory;
     }
 }

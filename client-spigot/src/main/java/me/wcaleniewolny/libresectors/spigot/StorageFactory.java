@@ -20,7 +20,7 @@ public class StorageFactory {
     public StorageManager getManager() {
         if (this.manager == null) {
             if (this.recoveryProtocol == null) {
-                this.recoveryProtocol = new BukkitMongoRecoveryProtocol(this.plugin);
+                this.recoveryProtocol = new BukkitMongoRecoveryProtocol(this.plugin, this.plugin.getDataFolder());
             }
 
             this.manager = new OkaeriStorageManager(this.libreConfiguration, this.recoveryProtocol);

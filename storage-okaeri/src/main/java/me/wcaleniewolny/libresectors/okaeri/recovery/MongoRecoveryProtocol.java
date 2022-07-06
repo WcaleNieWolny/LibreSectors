@@ -8,10 +8,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import me.wcaleniewolny.libresectors.api.storage.RecoveryStorageManager;
 
 public abstract class MongoRecoveryProtocol implements ServerMonitorListener {
-    private final AtomicBoolean databaseAvailable = new AtomicBoolean(false);
+    private final AtomicBoolean databaseAvailable = new AtomicBoolean(true);
     private final AtomicBoolean recoveryInProgress = new AtomicBoolean(false);
 
-    private final FlatRecoveryStorageManager recoveryStorageManager = new FlatRecoveryStorageManager(this.getDataFolder()); //TODO: FACTORY
+    private final FlatRecoveryStorageManager recoveryStorageManager;
+
+    protected MongoRecoveryProtocol(FlatRecoveryStorageManager recoveryStorageManager) {
+        this.recoveryStorageManager = recoveryStorageManager;
+    }
 
     public void init() {
         this.recoveryStorageManager.initRecovery();
@@ -37,10 +41,12 @@ public abstract class MongoRecoveryProtocol implements ServerMonitorListener {
         if (this.databaseAvailable() != newState) {
             this.databaseAvailable.set(newState);
 
-            if (newState) {
+            if (!newState) {
+                System.out.println("[LibreSectors] Starting recovery protocol!");
                 this.startRecoveryProtocol(this.recoveryInProgress);
             }
             else {
+                System.out.println("[LibreSectors] Stopping recovery protocol!");
                 this.stopRecoveryProtocol(this.recoveryInProgress);
             }
 

@@ -1,50 +1,68 @@
 package me.wcaleniewolny.libresectors.okaeri.recovery;
 
-import eu.okaeri.configs.json.simple.JsonSimpleConfigurer;
-import eu.okaeri.persistence.PersistenceCollection;
-import eu.okaeri.persistence.document.DocumentPersistence;
-import eu.okaeri.persistence.flat.FlatPersistence;
-import eu.okaeri.persistence.repository.RepositoryDeclaration;
+import com.google.gson.Gson;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import me.wcaleniewolny.libresectors.api.storage.RecoveryStorageManager;
 import me.wcaleniewolny.libresectors.api.user.LibreUser;
 import me.wcaleniewolny.libresectors.okaeri.LibreUserDocumentWrapper;
-import me.wcaleniewolny.libresectors.okaeri.LibreUserRepository;
 
 public class FlatRecoveryStorageManager implements RecoveryStorageManager {
+    private File saveFolder;
+    private Gson gson;
 
-    private DocumentPersistence persistence;
-    private LibreUserRepository repository;
-    private final File dataFolder;
-
-    public FlatRecoveryStorageManager(File dataFolder) {
-        this.dataFolder = dataFolder;
+    public FlatRecoveryStorageManager(File saveFolder) {
+        this.saveFolder = saveFolder;
     }
 
     @Override
     public void initRecovery() {
-        this.persistence = new DocumentPersistence(new FlatPersistence(new File(this.dataFolder, "storage"), ".yml"), JsonSimpleConfigurer::new);
-
-        PersistenceCollection collection = PersistenceCollection.of(LibreUserRepository.class);
-        this.persistence.registerCollection(collection);
-        this.repository = RepositoryDeclaration.of(LibreUserRepository.class).newProxy(this.persistence, collection, this.getClass().getClassLoader());
+        this.createFolder(this.saveFolder);
+        this.gson = new Gson();
     }
 
     @Override
     public void saveUser(LibreUser user) {
-        this.repository.save(this.repository.findOrCreateByPath(user.getUuid()).fromUser(user));
+        File saveFile = new File(this.saveFolder, String.format("%s.json", user.getUuid().toString()));
+        this.createFile(saveFile);
+        try {
+            Files.write(saveFile.toPath(), this.gson.toJson(user).getBytes(StandardCharsets.UTF_8));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void saveInventoryData(LibreUser user, byte[] data) {
-        LibreUserDocumentWrapper wrapper = this.repository.findOrCreateByPath(user.getUuid()).fromUser(user);
-        wrapper.setSerializedInventory(Base64.getEncoder().encodeToString(data));
-        this.repository.save(wrapper);
+        user.setSerializedInventory(Base64.getEncoder().encodeToString(data));
     }
 
     @Override
     public void recoverData() {
         //TODO!
+    }
+
+    private void createFolder(File file) {
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+    }
+
+    private void createFile(File file) {
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        try {
+            file.createNewFile();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
